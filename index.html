@@ -314,24 +314,31 @@
 
     // 保存成绩
     async function saveScore() {
-        const player = currentPlayer;
-        const score = foundCount;
-        const time = new Date().toLocaleString();
+      const player = "你的玩家变量"; // 比如 currentPlayer
+      const score = "你的得分变量";  // 比如 foundCount
+      const time = new Date().toLocaleString(); // 当前时间
 
-        try {
-            const response = await fetch('/.netlify/functions/saveScore', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ player, score, time })
-            });
-            const data = await response.json();
-            alert(data.message);
-            loadRanking();
-        } catch (error) {
-            alert('保存成绩时出错：' + error.message);
+      try {
+        const formData = new FormData();
+        formData.append('player', player);  // 对应表单字段
+        formData.append('score', score);    // 对应表单字段
+        formData.append('time', time);      // 对应表单字段
+        formData.append('form-name', 'rankings'); // 必须！告诉 Netlify 表单名
+
+        const response = await fetch('/', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          alert('成绩保存成功！');
+          loadRanking(); // 提交后刷新排行榜
+        } else {
+          throw new Error('保存失败');
         }
+      } catch (error) {
+        alert('保存出错：' + error.message);
+      }
     }
 
     // 加载排行榜
