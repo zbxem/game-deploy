@@ -333,51 +333,45 @@
     // 加载排行榜
     async function loadRanking() {
       try {
-        // 1. 明确函数地址（防止路径错误）
         const functionUrl = '/.netlify/functions/loadRanking';
-        console.log('尝试访问函数:', functionUrl);
+        console.log('请求URL:', functionUrl); // 确认请求路径
 
         const response = await fetch(functionUrl);
         
-        // 2. 捕获 HTTP 错误（如 404/500）
-        if (!response.ok) {
-          const errorBody = await response.text(); // 读取函数返回的错误详情
-          const errorMsg = `请求失败！状态码: ${response.status}\n响应内容: ${errorBody}`;
-          throw new Error(errorMsg);
-        }
-
-        // 3. 解析响应数据
-        const rankings = await response.json();
-        console.log('排行榜原始数据:', rankings); // 控制台打印原始数据，看是否符合预期
-
+        // 新增：打印响应头信息（用于调试）
+        console.log('响应状态:', response.status);
+        console.log('响应Content-Type:', response.headers.get('Content-Type'));
+        
+        // 读取原始响应内容（重要！用于调试）
+        const rawText = await response.text();
+        console.log('原始响应内容:', rawText);
+        
+        // 手动解析JSON，捕获解析错误
+        const rankings = JSON.parse(rawText);
+        
+        // 渲染排行榜
         const body = document.getElementById('ranking-body');
         body.innerHTML = '';
-
+        
         if (rankings.length === 0) {
           body.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-400">暂无数据</td></tr>';
           return;
         }
-
-        // 4. 渲染前检查数据格式（防止前端解析出错）
-        if (!rankings.every(item => item.player && item.score !== undefined && item.time)) {
-          throw new Error('数据格式错误！缺少 player/score/time 字段');
-        }
-
+        
+        // 渲染数据（添加安全检查，防止意外格式错误）
         rankings.forEach((item, index) => {
           const row = document.createElement('tr');
           row.innerHTML = `
             <td class="px-4 py-2">${index + 1}</td>
-            <td class="px-4 py-2">${item.player}</td>
-            <td class="px-4 py-2">${item.score}</td>
-            <td class="px-4 py-2">${item.time}</td>
+            <td class="px-4 py-2">${item.player || '未知'}</td>
+            <td class="px-4 py-2">${item.score || 0}</td>
+            <td class="px-4 py-2">${item.time || '未知时间'}</td>
           `;
           body.appendChild(row);
         });
-
       } catch (error) {
-        // 5. 控制台打印完整错误（必看！）
         console.error('排行榜加载失败详情:', error);
-        alert('加载排行榜时出错：' + error.message);
+        alert(`加载排行榜时出错：${error.message}`);
       }
     }
     //68542d4d1aba6e0008922d8a
