@@ -314,31 +314,20 @@
 
     // 保存成绩
     async function saveScore() {
-      const player = "你的玩家变量"; // 比如 currentPlayer
-      const score = "你的得分变量";  // 比如 foundCount
-      const time = new Date().toLocaleString(); // 当前时间
-
-      try {
-        const formData = new FormData();
-        formData.append('player', player);  // 对应表单字段
-        formData.append('score', score);    // 对应表单字段
-        formData.append('time', time);      // 对应表单字段
-        formData.append('form-name', 'rankings'); // 必须！告诉 Netlify 表单名
-
-        const response = await fetch('/', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (response.ok) {
-          alert('成绩保存成功！');
-          loadRanking(); // 提交后刷新排行榜
-        } else {
-          throw new Error('保存失败');
-        }
-      } catch (error) {
-        alert('保存出错：' + error.message);
-      }
+      const player = currentPlayer || '游客';
+      const score = foundCount;
+      const time = new Date().toLocaleString();
+      
+      // 设置隐藏表单的值
+      document.querySelector('input[name="player"]').value = player;
+      document.querySelector('input[name="score"]').value = score;
+      document.querySelector('input[name="time"]').value = time;
+      
+      // 提交表单（Netlify会自动处理）
+      document.querySelector('form[name="rankings"]').submit();
+      
+      alert('成绩保存成功！');
+      loadRanking(); // 刷新排行榜
     }
 
     // 加载排行榜
@@ -368,6 +357,8 @@
             alert('加载排行榜时出错：' + error.message);
         }
     }
+    //68542d4d1aba6e0008922d8a
+    //nfp_nZFbzjLbgvGWnjK1u3TWUoTBQYyZTNAk3021
     // 数组洗牌
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
